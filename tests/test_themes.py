@@ -18,6 +18,13 @@ def test_us_equity():
     assert classify_theme("TIGER 미국S&P500") == "미국주식"
 
 
+def test_defense_and_nuclear():
+    assert classify_theme("SOL K-방산") == "방산"
+    assert classify_theme("TIGER 우주항공방산") == "방산"
+    assert classify_theme("HANARO 원자력iSelect") == "원자력"
+    assert classify_theme("ACE 미국원자력SMR") == "원자력"
+
+
 def test_kospi_and_etc():
     assert classify_theme("KODEX 200") == "코스피"
     assert classify_theme("ACE 알수없는테마xyz") == "기타"
