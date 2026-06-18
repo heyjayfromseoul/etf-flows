@@ -78,7 +78,15 @@ with t2:
     st.subheader("테마별 수급·자금 (외국인 순매수 순)")
     show(d["theme"], ["theme", "foreign_netbuy", "inst_netbuy", "flow", "value",
                       "change_pct", "count"])
-    st.caption("거래대금/순매수 합계와 평균 등락률. '기타'는 분류 키워드에 안 걸린 종목 묶음.")
+    st.caption("거래대금/순매수 합계와 평균 등락률. 테마는 ETF '이름' 키워드로 분류. "
+               "'기타'는 분류 키워드에 안 걸린 종목 묶음.")
+    st.markdown("##### 🔍 테마 안에 어떤 ETF가 묶였나 (펼쳐보기)")
+    for rec in d["theme"]:
+        members = rec.get("members", [])
+        label = f"{rec['theme']} · {int(rec.get('count', len(members)))}종목 · " \
+                f"외국인 {rec['foreign_netbuy']/1e8:,.0f}억"
+        with st.expander(label):
+            show(members, ["name", "foreign_netbuy", "inst_netbuy", "value", "change_pct"])
 
 with t3:
     if not d.get("flow_available"):

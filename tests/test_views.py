@@ -22,6 +22,15 @@ def test_view_theme_aggregates(sample_df):
     assert themes["코스피"]["flow"] == 1e10
 
 
+def test_view_theme_members(sample_df):
+    res = view_theme(sample_df)
+    themes = {r["theme"]: r for r in res}
+    members = themes["반도체"]["members"]
+    assert len(members) == 1
+    assert members[0]["name"] == "KODEX 반도체"
+    assert members[0]["foreign_netbuy"] == 3e9
+
+
 def test_view_flow_top(sample_df):
     res = view_flow(sample_df, top_n=2)
     assert res["inflow"][0]["name"] == "KODEX 200"             # +1e10 최대 유입

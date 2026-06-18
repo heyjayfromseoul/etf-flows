@@ -26,7 +26,8 @@ def view_investor(df: pd.DataFrame, top_n: int = 20) -> dict:
 
 
 def view_theme(df: pd.DataFrame) -> list[dict]:
-    """B. 테마별 집계 (순매수 합, 자금흐름 합, 평균 등락, 거래대금 합)."""
+    """B. 테마별 집계 (순매수 합, 자금흐름 합, 평균 등락, 거래대금 합).
+    각 테마에 그 안에 묶인 ETF 목록(members)을 외국인 순매수 순으로 포함."""
     g = df.groupby("theme").agg(
         foreign_netbuy=("foreign_netbuy", "sum"),
         inst_netbuy=("inst_netbuy", "sum"),
@@ -36,7 +37,13 @@ def view_theme(df: pd.DataFrame) -> list[dict]:
         count=("name", "size"),
     )
     g = g.sort_values("foreign_netbuy", ascending=False).reset_index()
-    return g.to_dict("records")
+    mcols = ["name", "foreign_netbuy", "inst_netbuy", "value", "change_pct"]
+    records = []
+    for rec in g.to_dict("records"):
+        sub = df[df["theme"] == rec["theme"]].sort_values("foreign_netbuy", ascending=False)
+        rec["members"] = _rows(sub, mcols)
+        records.append(rec)
+    return records
 
 
 def view_flow(df: pd.DataFrame, top_n: int = 20) -> dict:
