@@ -1,4 +1,12 @@
-from etf_flows.views import view_investor, view_theme, view_flow, view_active
+from etf_flows.views import view_investor, view_theme, view_flow, view_active, theme_trend
+
+
+def test_theme_trend_series():
+    daily = [
+        {"date": "20260616", "theme": [{"theme": "반도체", "foreign_netbuy": 1e9}]},
+        {"date": "20260617", "theme": [{"theme": "반도체", "foreign_netbuy": 2e9}]},
+    ]
+    assert theme_trend(daily, "반도체") == [("20260616", 1e9), ("20260617", 2e9)]
 
 
 def test_view_investor_top_foreign(sample_df):
