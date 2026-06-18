@@ -1,0 +1,36 @@
+name: build-etf-flows
+
+on:
+  schedule:
+    - cron: "0 10 * * 1-5"   # 평일 19:00 KST (거래 당일 저녁, 데이터 확정 후 — 주 수집)
+    - cron: "0 20 * * 0-4"   # 평일 05:00 KST (안전망 재실행)
+  workflow_dispatch: {}        # 수동 실행 버튼
+
+permissions:
+  contents: write              # data/*.json 커밋 권한
+
+concurrency:
+  group: build-etf-flows       # 동시 실행 방지
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deps
+        run: pip install -r requirements.txt
+      - name: Build (기준 = KST 오늘)
+        run: |
+          TODAY=$(TZ=Asia/Seoul date +%Y%m%d)
+          python -m etf_flows.build "$TODAY"
+      - name: Commit data if changed
+        run: |
+          git config user.name "etf-bot"
+          git config user.email "etf-bot@users.noreply.github.com"
+          git add data/*.json
+          git diff --staged --quiet || git commit -m "data: ETF flows $(TZ=Asia/Seoul date +%Y-%m-%d)"
+          git push
